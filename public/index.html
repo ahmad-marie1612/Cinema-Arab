@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Tech | الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* تنسيقات إضافية خاصة بالصفحة الرئيسية */
+        .search-section {
+            padding: 20px;
+            background: linear-gradient(to bottom, #000, var(--bg-dark));
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            width: 100%;
+            padding: 10px 0;
+            scrollbar-width: none; /* إخفاء شريط التمرير */
+        }
+
+        .filter-btn {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 8px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .login-link {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            background: var(--primary);
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <h1 onclick="location.href='index.html'" style="cursor:pointer; margin: 0;">
+                Cinema <span style="color:var(--primary)">Tech</span>
+            </h1>
+
+            <div class="user-actions">
+                <div class="notif-wrapper">
+                    <div id="notif-bell" onclick="toggleNotifs()" style="font-size: 20px; position: relative;">
+                        🔔 <span id="notif-badge" class="badge">0</span>
+                    </div>
+                    <div id="notif-dropdown" class="notif-content">
+                        <h4>التنبيهات</h4>
+                        <div id="notif-items">
+                            <p style="padding:10px; font-size:12px; color:#888;">لا توجد إشعارات جديدة</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="auth-zone">
+                    <a href="login.html" class="login-link">دخول</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div style="position: relative; width: 100%; max-width: 600px;">
+            <input type="text" id="search" placeholder="ابحث عن مسلسل أو فيلم..." onkeyup="searchShows()" 
+                   style="width: 100%; padding: 15px 20px; border-radius: 30px; border: none; background: #222; color: white; outline: none;">
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterType('all', this)">الكل</button>
+            <button class="filter-btn" onclick="filterType('series', this)">مسلسلات</button>
+            <button class="filter-btn" onclick="filterType('movies', this)">أفلام</button>
+            <button class="filter-btn" onclick="filterType('top', this)">الأعلى تقييماً</button>
+        </div>
+    </section>
+
+    <main class="container">
+        <div class="grid" id="main-grid">
+            <div class="loader" style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                جاري تحميل الروائع...
+            </div>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 40px 20px; color: #666; font-size: 14px; border-top: 1px solid #222; margin-top: 50px;">
+        <p>&copy; 2026 Cinema Tech. جميع الحقوق محفوظة.</p>
+        <p>تم التطوير لتقديم أفضل تجربة مشاهدة عبر تليجرام.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // كود إضافي خاص بـ index.html لتحديث واجهة المستخدم بناءً على تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = localStorage.getItem('role');
+            const authZone = document.getElementById('auth-zone');
+            
+            if (role === 'admin') {
+                authZone.innerHTML = `<a href="admin.html" class="login-link" style="background:#28a745">لوحة التحكم</a>`;
+            } else if (role === 'user') {
+                authZone.innerHTML = `<span style="font-size:14px">مرحباً بك</span>`;
+            }
+            
+            // تحميل المسلسلات فور فتح الصفحة
+            loadMainLibrary();
+        });
+
+        async function loadMainLibrary() {
+            try {
+                const res = await fetch('/api/series');
+                const shows = await res.json();
+                const grid = document.getElementById('main-grid');
+                
+                if (shows.length === 0) {
+                    grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center;">لا يوجد محتوى متاح حالياً.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = shows.map(show => `
+                    <div class="show-card fade-in" onclick="location.href='watch.html?id=${show._id}'">
+                        <div class="poster-container">
+                            <img src="${show.poster}" alt="${show.title}" loading="lazy">
+                            <div class="rating-badge">⭐ ${show.rating || '0'}</div>
+                        </div>
+                        <div class="show-info">
+                            <h3>${show.title}</h3>
+                            <p>${show.episodes ? show.episodes.length : 0} حلقة</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("فشل التحميل:", err);
+            }
+        }
+
+        function filterType(type, btn) {
+            // تحديث شكل الأزرار
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // منطق التصفية (يمكنك توسيعه برمجياً هنا)
+            searchShows(); 
+        }
+
+        function searchShows() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const cards = document.querySelectorAll('.show-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

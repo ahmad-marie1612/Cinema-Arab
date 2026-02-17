@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة المسلسل - Cinema Tech</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1 onclick="location.href='index.html'" style="cursor:pointer">Cinema <span style="color:var(--primary)">Tech</span></h1>
+    </header>
+
+    <div class="container fade-in">
+        <section class="video-section">
+            <div class="video-wrapper">
+                <video id="player" playsinline controls></video>
+            </div>
+            <h2 id="video-title">جاري التحميل...</h2>
+            
+            <div id="quality-container" class="actions-bar"></div>
+            <div id="download-container" class="actions-bar" style="margin-top: 10px;"></div>
+        </section>
+
+        <div class="content-grid">
+            <aside class="episodes-sidebar">
+                <h3>قائمة الحلقات</h3>
+                <div id="episodes-list" class="ep-list">
+                    </div>
+            </aside>
+
+            <section class="details-section">
+                <h3>قصة العمل</h3>
+                <p id="series-desc"></p>
+                
+                <hr style="border-color: #333; margin: 20px 0;">
+                
+                <div class="comments-section">
+                    <h3>التعليقات</h3>
+                    <div class="comment-input-box">
+                        <input type="text" id="comment-text" placeholder="ما رأيك في هذا العمل؟">
+                        <button class="btn-primary" onclick="postComment()">إرسال</button>
+                    </div>
+                    <div id="comments-display"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب جديد | Cinema Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container fade-in">
+        <h1>إنشاء <span style="color:var(--primary)">حساب</span></h1>
+        <p>انضم إلينا لمشاهدة أفضل المسلسلات</p>
+        
+        <div class="auth-form">
+            <input type="text" id="reg-username" placeholder="اسم المستخدم" required>
+            <input type="password" id="reg-password" placeholder="كلمة السر" required>
+            <input type="password" id="reg-confirm" placeholder="تأكيد كلمة السر" required>
+            <button class="btn-primary" onclick="handleRegister()">إنشاء الحساب</button>
+        </div>
+        
+        <p class="auth-footer">لديك حساب بالفعل؟ <a href="login.html">سجل دخولك هنا</a></p>
+    </div>
+
+    <script>
+        async function handleRegister() {
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (password !== confirm) {
+                alert("كلمات السر غير متطابقة!");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                
+                if (res.ok) {
+                    alert("✅ تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.");
+                    location.href = 'login.html';
+                } else {
+                    alert("❌ خطأ: " + (data.error || "فشل التسجيل"));
+                }
+            } catch (err) {
+                alert("❌ تعذر الاتصال بالسيرفر، تأكد أن السيرفر يعمل على منفذ 3000");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | Cinema Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container fade-in">
+        <h1>تسجيل <span style="color:var(--primary)">الدخول</span></h1>
+        <p>مرحباً بك مجدداً في عالم المتعة</p>
+        
+        <div class="auth-form">
+            <input type="text" id="username" placeholder="اسم المستخدم" required>
+            <input type="password" id="password" placeholder="كلمة السر" required>
+            <button class="btn-primary" onclick="handleLogin()">دخول</button>
+        </div>
+        
+        <div class="auth-footer">
+            <p>ليس لديك حساب؟ <a href="register.html" style="color: var(--primary); font-weight: bold;">أنشئ حساباً جديداً من هنا</a></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
