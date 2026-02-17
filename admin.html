@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - Cinema Tech</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-box { background: #1f1f1f; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 800px; }
+        .episode-block { background: #2a2a2a; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; }
+        .source-block { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .source-block input { flex: 1; min-width: 120px; margin: 0; }
+        .btn-small { padding: 5px 10px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-add { background: #e50914; margin-top: 15px; width: 100%; padding: 10px; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 onclick="location.href='index.html'" style="cursor:pointer">لوحة <span style="color:#e50914">التحكم</span></h1>
+    </header>
+
+    <div class="admin-box">
+        <h2>إضافة مسلسل / فيلم جديد</h2>
+        <input type="text" id="title" placeholder="اسم المسلسل">
+        <textarea id="desc" placeholder="قصة المسلسل"></textarea>
+        <input type="text" id="poster" placeholder="رابط صورة البوستر">
+        
+        <div id="episodes-container">
+            </div>
+        
+        <button class="btn-small" onclick="addEpisodeBlock()" style="background:#28a745; margin-top:10px;">+ إضافة حلقة جديدة</button>
+        <button class="btn-add" onclick="saveSeries()">💾 حفظ العمل ونشره</button>
+    </div>
+
+    <script>
+        // التحقق من الصلاحيات
+        if(localStorage.getItem('role') !== 'admin') {
+            alert('غير مصرح لك بالدخول');
+            location.href = 'index.html';
+        }
+
+        let epCount = 0;
+
+        function addEpisodeBlock() {
+            const container = document.getElementById('episodes-container');
+            const epDiv = document.createElement('div');
+            epDiv.className = 'episode-block';
+            epDiv.id = `ep-${epCount}`;
+            
+            epDiv.innerHTML = `
+                <input type="text" class="ep-title" placeholder="اسم الحلقة (مثال: الحلقة 1)">
+                <div class="sources-container"></div>
+                <button class="btn-small" onclick="addSourceBlock(${epCount})" style="background:#007bff; margin-top:10px;">+ إضافة جودة ورابط تليجرام</button>
+            `;
+            container.appendChild(epDiv);
+            addSourceBlock(epCount); // إضافة جودة افتراضية فارغة
+            epCount++;
+        }
+
+        function addSourceBlock(epId) {
+            const sourcesContainer = document.querySelector(`#ep-${epId} .sources-container`);
+            const srcDiv = document.createElement('div');
+            srcDiv.className = 'source-block';
+            srcDiv.innerHTML = `
+                <input type="text" class="src-quality" placeholder="الجودة (مثال: 1080p)">
+                <input type="text" class="src-link" placeholder="رابط تليجرام (channel/123)">
+                <button class="btn-small" style="background:#dc3545;" onclick="this.parentElement.remove()">X</button>
+            `;
+            sourcesContainer.appendChild(srcDiv);
+        }
+
+        async function saveSeries() {
+            const title = document.getElementById('title').value;
+            const desc = document.getElementById('desc').value;
+            const poster = document.getElementById('poster').value;
+            
+            // تجميع بيانات الحلقات والجودات
+            const episodes = [];
+            document.querySelectorAll('.episode-block').forEach(epBlock => {
+                const epTitle = epBlock.querySelector('.ep-title').value;
+                const sources = [];
+                epBlock.querySelectorAll('.source-block').forEach(srcBlock => {
+                    const quality = srcBlock.querySelector('.src-quality').value;
+                    const link = srcBlock.querySelector('.src-link').value;
+                    if(quality && link) sources.push({ quality, link });
+                });
+                if(epTitle && sources.length > 0) episodes.push({ title: epTitle, sources });
+            });
+
+            if(!title || episodes.length === 0) {
+                alert("يرجى إدخال اسم المسلسل وحلقة واحدة على الأقل ببيانات صحيحة.");
+                return;
+            }
+
+            const data = { title, desc, poster, episodes };
+
+            await fetch('/api/series', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            alert('✅ تم الحفظ بنجاح!');
+            location.reload();
+        }
+
+        // إضافة حلقة فارغة عند فتح الصفحة
+        addEpisodeBlock();
+    </script>
+</body>
+</html>
